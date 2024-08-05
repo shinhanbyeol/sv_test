@@ -151,6 +151,13 @@ const Calendar = (props: CalendarProps) => {
         }
       });
 
+      // 일요일에는 overLapStack을 초기화
+      if (date.getDay() === 0) {
+        overLapStack.forEach((_, i) => {
+          overLapStack[i] = null;
+        });
+      }
+
       return involvedSchedule.map((schedule, idx) => {
         const start = schedule.startDate.getTime();
         const end = schedule.endDate.getTime();
