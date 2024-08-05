@@ -1,6 +1,5 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo } from 'react';
 import tw from 'tailwind-styled-components';
-import { Schedule } from '../types';
 
 type DayBoxProps = React.PropsWithChildren<{}> & {
   isBlocked: boolean;
@@ -64,6 +63,7 @@ const DayBox = ({
         }}
         onMouseUp={() => {
           setIsDragging(false);
+          setTemporaryEndDate(new Date(selectedYear, selectedMonth - 1, day));
           openScheduleForm();
         }}
       >

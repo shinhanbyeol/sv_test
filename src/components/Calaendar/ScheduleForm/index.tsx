@@ -12,9 +12,10 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { Field, Form, Formik } from 'formik';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
 
 interface FormModalProps {
   initialValues: any;
@@ -38,9 +39,6 @@ const FormModal = ({
   children,
 }: FormModalProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const locale = new Date().toLocaleDateString('en-US', {
-    timeZone: 'Asia/Seoul',
-  });
 
   /**
    * @description Convert camelCase to label and first letter uppercase
@@ -52,15 +50,6 @@ const FormModal = ({
       .replace(/([A-Z])/g, ' $1')
       .replace(/^./, (str) => str.toUpperCase());
   };
-
-  const maxFieldLabelWith = useMemo(() => {
-    const maxFiledLabelLength = Object.keys(initialValues).reduce(
-      (acc, cur) => (cur.length > acc ? cur.length : acc),
-      0
-    );
-    const measerdWidth = maxFiledLabelLength * 18;
-    return measerdWidth;
-  }, [initialValues]);
 
   useEffect(() => {
     wakeupFormModal(onOpen);
@@ -78,6 +67,7 @@ const FormModal = ({
       <Formik
         initialValues={initialValues}
         onSubmit={async (values, actions) => {
+          actions.setSubmitting(true);
           await onSubmit(values, actions);
           actions.setSubmitting(false);
           onClose();
@@ -91,11 +81,22 @@ const FormModal = ({
               <ModalBody>
                 <Container display={'flex'} flexDirection={'column'} rowGap={2}>
                   {Object.keys(initialValues).map((key, index) => (
-                    <Field key={`field-${index}-${key}`} name={key}>
+                    <Field
+                      key={`field-${index}-${key}`}
+                      name={key}
+                      validate={(value: any) => {
+                        if (!value && key !== 'description') {
+                          return `${camelToLabel(key)} is required`;
+                        }
+                      }}
+                    >
                       {({ field, form }: any) => (
                         <FormControl display={'flex'} flexDirection={'column'}>
                           <FormLabel htmlFor={key}>
                             {camelToLabel(key)}
+                            <Text color={'red'} float={'right'}>
+                              {form.errors[key]}
+                            </Text>
                           </FormLabel>
                           <Input
                             type={
@@ -109,9 +110,6 @@ const FormModal = ({
                             id={key}
                             onChange={props.handleChange}
                           />
-                          <FormErrorMessage>
-                            {form.errors[key]}
-                          </FormErrorMessage>
                         </FormControl>
                       )}
                     </Field>
