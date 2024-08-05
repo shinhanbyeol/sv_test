@@ -1,6 +1,7 @@
 import Calaendar from '@/components/Calaendar';
 
 const CalendarPage = () => {
+  // mockup data
   const schedules = [
     {
       id: '1schedule',
@@ -19,9 +20,25 @@ const CalendarPage = () => {
       color: '#2bab75',
     },
     {
+      id: '5schedule',
+      title: 'test6',
+      startDate: new Date(2024, 7, 6),
+      endDate: new Date(2024, 7, 9),
+      description: 'test2',
+      color: '#e1ae1a',
+    },
+    // {
+    //   id: '7schedule',
+    //   title: 'test3ddd',
+    //   startDate: new Date(2024, 7, 4),
+    //   endDate: new Date(2024, 7, 5),
+    //   description: 'test555',
+    //   color: '#e1ae1a',
+    // },
+    {
       id: '3schedule',
       title: 'test3',
-      startDate: new Date(2024, 7, 3),
+      startDate: new Date(2024, 7, 5),
       endDate: new Date(2024, 7, 8),
       description: 'test2',
       color: '#e1ae1a',

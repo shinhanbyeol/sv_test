@@ -34,29 +34,64 @@ const ScheDulesList = ({ isSunday, schedules }: ScheDulesListProps) => {
     );
   }, [schedules]);
 
+  const overLapOrderMax = useMemo(() => {
+    return schedules.reduce((acc, schedule) => {
+      acc =
+        acc > (schedule.overLapOrder || 0) ? acc : schedule.overLapOrder || 0;
+      return acc;
+    }, 0);
+  }, [schedules]);
+
+  ``;
+
   return (
     <>
       <div>
-        {Array.from({ length: whiteSpaceCount }).map((_, index) => (
-          <WhiteSpace key={index} />
-        ))}
-        {schedules.map((schedule, index) => (
-          <p
-            className={styleSetter(schedule)}
-            key={index}
-            style={{
-              backgroundColor: schedule.color,
-            }}
-            onClick={() => {
-              console.log(schedule);
-            }}
-          >
-            {schedule?.index === 0 || isSunday ? schedule.title : <></>}
-          </p>
-        ))}
+        {Array.from(
+          {
+            length: overLapOrderMax,
+          },
+          (_, i) => {
+            const schedule = schedules.find(
+              (schedule) => schedule.overLapOrder === i + 1
+            );
+
+            return schedule ? (
+              <p
+                className={styleSetter(schedule)}
+                key={i}
+                style={{
+                  backgroundColor: schedule.color,
+                }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onMouseUp={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log(schedule);
+                }}
+              >
+                {schedule?.index === 0 || isSunday ? schedule.title : <></>}
+              </p>
+            ) : (
+              <WhiteSpace key={i} />
+            );
+          }
+        )}
       </div>
     </>
   );
 };
 
 export default memo(ScheDulesList);
+
+// {Array.from({ length: whiteSpaceCount }).map((_, index) => (
+//   <WhiteSpace key={index} />
+// ))}
+// {schedules.map((schedule, index) => (

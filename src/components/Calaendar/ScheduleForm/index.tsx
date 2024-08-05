@@ -101,6 +101,8 @@ const FormModal = ({
                             type={
                               key === 'startDate' || key === 'endDate'
                                 ? 'date'
+                                : key === 'color'
+                                ? 'color'
                                 : 'text'
                             }
                             {...field}

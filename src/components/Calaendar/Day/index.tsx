@@ -44,7 +44,9 @@ const DayBox = ({
   return (
     <>
       <StyledDayBox
-        className={`select-none cursor-cell ${isBlocked ? 'bg-gray-200' : ''}`}
+        className={`select-none cursor-pointer ${isDragging && 'cursor-cell'} ${
+          isBlocked ? 'bg-gray-200' : ''
+        }`}
         key={index}
         onClick={() => {
           setTemporaryStartDate(new Date(selectedYear, selectedMonth - 1, day));
@@ -55,7 +57,7 @@ const DayBox = ({
           setTemporaryStartDate(new Date(selectedYear, selectedMonth - 1, day));
           setTemporaryEndDate(null);
         }}
-        onMouseOver={(e) => {
+        onMouseOver={() => {
           if (isDragging) {
             setTemporaryEndDate(new Date(selectedYear, selectedMonth - 1, day));
           }

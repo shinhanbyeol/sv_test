@@ -125,9 +125,11 @@ const Calendar = (props: CalendarProps) => {
       year: number,
       month: number,
       day: number,
-      overLapStack: (string | null)[]
+      overLapOrderBySchecduleId: Map<string, number> = new Map()
     ): Schedule[] => {
       if (!schedules) return [];
+      let overLap = 0;
+      let overLapOrder = 0;
       const date = new Date(year, month - 1, day);
       const _sortedSchedules = schedules.sort(
         (f, s) =>
@@ -140,18 +142,54 @@ const Calendar = (props: CalendarProps) => {
           date.getTime() <= schedule.endDate.getTime()
       );
 
-      // 이미 종료된 스케줄은 스택에서 제거
-      _sortedSchedules.forEach((schedule) => {
-        if (date.getTime() > schedule.endDate.getTime()) {
-          overLapStack.forEach((id, i) => {
-            if (id === schedule.id) {
-              overLapStack[i] = null;
+      return involvedSchedule.map((schedule, idx) => {
+        overLap = overLapOrderBySchecduleId.get(schedule.id) || overLap + 1;
+
+        if (date.getDate() === 4) {
+          console.log('--debug point--');
+        }
+        // 현재 overLap이 가장 낮은 스케줄인지 확인
+        let emptyOverlapOrder = null;
+        for (let i = 1; i < overLap; i++) {
+          const isHas = Array.from(
+            overLapOrderBySchecduleId.values()
+          ).findIndex((v) => v === i);
+          if (isHas === -1) {
+            emptyOverlapOrder = i;
+          }
+        }
+        if (emptyOverlapOrder && !overLapOrderBySchecduleId.has(schedule.id)) {
+          console.log('emptyOverlapOrder:', emptyOverlapOrder);
+          overLap = emptyOverlapOrder;
+        } else {
+          // overLapOrderBySchecduleId 에서 involce 된 스케줄의 overLapOrder를 가져옴
+          const _overLapOrderBySchecduleId = new Map();
+          overLapOrderBySchecduleId.forEach((value, key) => {
+            if (
+              involvedSchedule.findIndex(
+                (v) => v.id === key && v.id !== schedule.id
+              ) !== -1
+            ) {
+              _overLapOrderBySchecduleId.set(key, value);
+            }
+          });
+          Array.from(_overLapOrderBySchecduleId.values()).forEach((v) => {
+            if (v === overLap) {
+              overLap = v + 1;
             }
           });
         }
-      });
+        overLapOrder = overLapOrderBySchecduleId.get(schedule.id) || overLap;
+        // overLapOrder =
+        //   (overLapOrderBySchecduleId.get(schedule.id) || 0) < overLap
+        //     ? overLap
+        //     : overLapOrderBySchecduleId.get(schedule.id) || 0;
 
-      return involvedSchedule.map((schedule, idx) => {
+        overLapOrderBySchecduleId.set(schedule.id, overLapOrder);
+        if (schedule.endDate.getTime() === date.getTime()) {
+          overLapOrderBySchecduleId.delete(schedule.id);
+        }
+
         const start = schedule.startDate.getTime();
         const end = schedule.endDate.getTime();
         const length = Math.ceil((end - start) / (1000 * 60 * 60 * 24) + 1);
@@ -159,25 +197,11 @@ const Calendar = (props: CalendarProps) => {
           (date.getTime() - start) / (1000 * 60 * 60 * 24)
         );
 
-        if (date.getTime() === 15) {
-          console.log('debug start');
-        }
-
-        // 스케줄의 정렬 순서를 할당
-        overLapStack.forEach((id, i) => {
-          if (overLapStack.findIndex((id) => id === schedule.id) === -1) {
-            if (id === null) {
-              overLapStack[i] = schedule.id;
-            }
-          }
-        });
-        const order = overLapStack.findIndex((id) => id === schedule.id) + 1;
-
         return {
           ...schedule,
           index,
           length,
-          overLapOrder: order,
+          overLapOrder,
         };
       });
     },
@@ -208,7 +232,7 @@ const Calendar = (props: CalendarProps) => {
    * @description 해당 월의 일 수만큼 반복하여 해당 날짜에 할당된 스케줄을 반환
    */
   const daysList = useMemo(() => {
-    const overLapStack = schedules.map(() => null);
+    const overLapOrderBySchecduleId = new Map<string, number>();
     return Array.from(
       {
         length: dayCount + startDayOfWeek(),
@@ -221,7 +245,7 @@ const Calendar = (props: CalendarProps) => {
             selectedYear,
             selectedMonth,
             day,
-            overLapStack
+            overLapOrderBySchecduleId
           ),
         };
       }
@@ -232,7 +256,6 @@ const Calendar = (props: CalendarProps) => {
     selectedMonth,
     selectedYear,
     startDayOfWeek,
-    schedules,
   ]);
 
   return (
