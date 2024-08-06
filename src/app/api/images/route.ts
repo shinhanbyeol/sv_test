@@ -24,7 +24,8 @@ const generateRandomData = (): MockImage[] => {
 
 export async function GET() {
   const delay = getRandomNumber(0, 2000);
-  const shouldFail = getRandomNumber(1, 10) <= 10;
+  // 기존 코드에서는 가상의 에러 확률이 너무 높아 20%로 수정
+  const shouldFail = getRandomNumber(1, 10) <= 2;
 
   await sleep(delay);
 

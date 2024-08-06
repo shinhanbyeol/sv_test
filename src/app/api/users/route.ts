@@ -28,7 +28,7 @@ const generateRandomData = (): MockUser[] => {
 
 export async function GET() {
   const delay = getRandomNumber(0, 2000);
-  const shouldFail = getRandomNumber(1, 10) <= 10;
+  const shouldFail = getRandomNumber(1, 10) <= 2;
 
   await sleep(delay);
 
