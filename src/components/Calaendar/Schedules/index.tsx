@@ -5,34 +5,25 @@ import tw from 'tailwind-styled-components';
 interface ScheDulesListProps {
   isSunday: boolean;
   schedules: Schedule[];
+  setSelectedSchedule: (schedule: Schedule) => void;
 }
 
-const WhiteSpace = tw.p`h-5`;
+const WhiteSpace = tw.p`h-5 mb-1`;
 
-const ScheDulesList = ({ isSunday, schedules }: ScheDulesListProps) => {
+const ScheDulesList = ({
+  isSunday,
+  schedules,
+  setSelectedSchedule,
+}: ScheDulesListProps) => {
   const styleSetter = useCallback((schedule: Schedule) => {
-    return `z-10 h-5 text-white text-sm w-[${(schedule.length ?? 1) * 300}px] ${
-      schedule.index === 0 ? 'rounded-l-lg ml-1 pl-1.5' : ''
-    } ${
+    return `z-10 h-5 mb-1 text-white text-sm w-[${
+      (schedule.length ?? 1) * 300
+    }px] ${schedule.index === 0 ? 'rounded-l-lg ml-1 pl-1.5' : ''} ${
       schedule.length && schedule.index === schedule.length - 1
         ? 'rounded-r-lg mr-1'
         : ''
     }`;
   }, []);
-
-  const whiteSpaceCount = useMemo(() => {
-    return (
-      schedules.reduce((acc, schedule, index) => {
-        const overLapOrder = schedule.overLapOrder || 0;
-        if (index === 0) {
-          acc = overLapOrder;
-        } else {
-          acc = acc > overLapOrder ? overLapOrder : acc;
-        }
-        return acc;
-      }, 0) - 1
-    );
-  }, [schedules]);
 
   const overLapOrderMax = useMemo(() => {
     return schedules.reduce((acc, schedule) => {
@@ -74,7 +65,7 @@ const ScheDulesList = ({ isSunday, schedules }: ScheDulesListProps) => {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log(schedule);
+                  setSelectedSchedule(schedule);
                 }}
               >
                 {schedule?.index === 0 || isSunday ? schedule.title : <></>}

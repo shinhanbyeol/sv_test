@@ -3,6 +3,7 @@ import {
   HTMLAttributes,
   memo,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -45,6 +46,10 @@ const Calendar = (props: CalendarProps) => {
 
   // schedules
   const [schedules, setSchedules] = useState<Schedule[]>(props.schedules ?? []);
+
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
+    null
+  );
 
   // month and year state
   const [selectedYear, setSelectedYear] = useState(
@@ -119,7 +124,10 @@ const Calendar = (props: CalendarProps) => {
     [debounceChangeMonth]
   );
 
-  // 해당 날짜에 할당된 스케줄을 반환하는 함수
+  /**
+   * @title getInvolvedSchedule
+   * @desscription 해당 날짜에 할당된 스케줄을 반환하는 함수
+   */
   const getInvolvedSchedule = useCallback(
     (
       year: number,
@@ -242,43 +250,92 @@ const Calendar = (props: CalendarProps) => {
     schedules,
   ]);
 
+  useEffect(() => {
+    if (selectedSchedule) {
+      openScheduleForm?.();
+    }
+  }, [openScheduleForm, selectedSchedule]);
+
   return (
     <>
       <FormModal
-        initialValues={{
-          title: '',
-          description: '',
-          startDate:
-            temporaryStartDate &&
-            new Date(temporaryStartDate.getTime() - offset)
-              .toISOString()
-              .split('T')[0],
-          endDate:
-            temporaryEndDate &&
-            new Date(temporaryEndDate.getTime() - offset)
-              .toISOString()
-              .split('T')[0],
-          color: '#e1ae1a',
-        }}
+        initialValues={
+          selectedSchedule
+            ? {
+                title: selectedSchedule.title,
+                description: selectedSchedule.description,
+                startDate: new Date(
+                  selectedSchedule.startDate.getTime() - offset
+                )
+                  .toISOString()
+                  .split('T')[0],
+                endDate: new Date(selectedSchedule.endDate.getTime() - offset)
+                  .toISOString()
+                  .split('T')[0],
+                color: selectedSchedule.color,
+              }
+            : {
+                title: '',
+                description: '',
+                startDate:
+                  temporaryStartDate &&
+                  new Date(temporaryStartDate.getTime() - offset)
+                    .toISOString()
+                    .split('T')[0],
+                endDate:
+                  temporaryEndDate &&
+                  new Date(temporaryEndDate.getTime() - offset)
+                    .toISOString()
+                    .split('T')[0],
+                color: '#e1ae1a',
+              }
+        }
         onCloseEvent={() => {
           setTemporaryStartDate(null);
           setTemporaryEndDate(null);
+          setSelectedSchedule(null);
         }}
         onSubmit={(values) => {
-          const randomId = randomBytes(20).toString('hex');
-          const _newSchedule: Schedule = {
-            id: randomId,
-            title: values.title,
-            startDate: new Date(new Date(values.startDate).getTime() + offset),
-            endDate: new Date(new Date(values.endDate).getTime() + offset),
-            description: values.description,
-            color: values.color,
-          };
-          setSchedules((prev) => {
-            return [...prev, _newSchedule];
-          });
-          setTemporaryStartDate(null);
-          setTemporaryEndDate(null);
+          if (selectedSchedule) {
+            // 일정 수정
+            setSchedules((prev) => {
+              return prev.map((schedule) => {
+                if (schedule.id === selectedSchedule.id) {
+                  return {
+                    ...schedule,
+                    title: values.title,
+                    startDate: new Date(
+                      new Date(values.startDate).getTime() + offset
+                    ),
+                    endDate: new Date(
+                      new Date(values.endDate).getTime() + offset
+                    ),
+                    description: values.description,
+                    color: values.color,
+                  };
+                }
+                return schedule;
+              });
+            });
+          } else {
+            // 일정 추가
+            const randomId = randomBytes(20).toString('hex');
+            const _newSchedule: Schedule = {
+              id: randomId,
+              title: values.title,
+              startDate: new Date(
+                new Date(values.startDate).getTime() + offset
+              ),
+              endDate: new Date(new Date(values.endDate).getTime() + offset),
+              description: values.description,
+              color: values.color,
+            };
+            setSchedules((prev) => {
+              return [...prev, _newSchedule];
+            });
+            setTemporaryStartDate(null);
+            setTemporaryEndDate(null);
+          }
         }}
         title="일정 등록"
         confirmText="등록"
@@ -332,6 +389,7 @@ const Calendar = (props: CalendarProps) => {
                   <Schedules
                     isSunday={index % 7 === 0}
                     schedules={d.involvedSchedules}
+                    setSelectedSchedule={setSelectedSchedule}
                   />
                 </DayBox>
               );
