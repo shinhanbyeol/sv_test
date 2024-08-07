@@ -3,7 +3,12 @@
 import { useCallback, useState } from 'react';
 import { MockUser } from '@/app/api/users/route';
 import { Stack, Box, Text, ListItem, List, Button } from '@chakra-ui/react';
-import { Step2Config, TaskStep, useTaskStore } from '@/stores/taskGenStore';
+import {
+  Step2Config,
+  Step3Config,
+  TaskStep,
+  useTaskStore,
+} from '@/stores/taskGenStore';
 import _ from 'lodash';
 import { useRouter } from 'next/navigation';
 
@@ -14,12 +19,19 @@ interface StepThreeFormProps {
 const StepThreeForm = ({ users }: StepThreeFormProps) => {
   const router = useRouter();
   const [usersData] = useState<MockUser[]>(users);
-  const [selectedUser, setSelectedUser] = useState<MockUser[] | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const { setStepData } = useTaskStore();
+
   const step2Config = useTaskStore(
     (state) => state.taskConfig.steps[TaskStep.step2] as Step2Config
   );
-  const { setStepData } = useTaskStore();
+  const step3Config = useTaskStore(
+    (state) => state.taskConfig.steps[TaskStep.step3]
+  ) as Step3Config;
+
+  const [selectedUser, setSelectedUser] = useState<MockUser[] | null>(
+    step3Config?.workers || null
+  );
 
   const handleTogleUser = useCallback(
     (user: MockUser) => {
@@ -50,10 +62,12 @@ const StepThreeForm = ({ users }: StepThreeFormProps) => {
     const workers: {
       id: string;
       name: string;
+      email: string;
       taskList?: number[];
     }[] = selectedUser.map((user) => ({
       id: user.id,
       name: user.name,
+      email: user.email,
       taskList: [],
     }));
 
@@ -63,7 +77,7 @@ const StepThreeForm = ({ users }: StepThreeFormProps) => {
 
     if (!_taskDistribution) {
       alert('작업 분배가 되지 않았습니다. 작업 분배를 먼저 진행해주세요.');
-      router.push('/task-generation/step-2');
+      return router.push('/task-generation');
     }
 
     let idx = 0;
@@ -96,7 +110,8 @@ const StepThreeForm = ({ users }: StepThreeFormProps) => {
                   : 'white'
               }
               key={user.id}
-              cursor={'pointer'}
+              cursor={isDragging ? 'cell' : 'pointer'}
+              _hover={{ bgColor: 'gray.200' }}
               onClick={() => handleTogleUser(user)}
               onMouseDown={(e) => {
                 setIsDragging(true);
@@ -116,18 +131,40 @@ const StepThreeForm = ({ users }: StepThreeFormProps) => {
             </ListItem>
           ))}
         </List>
+        <Button
+          onClick={() => router.push('/task-generation/step-2')}
+          variant={'ghost'}
+        >
+          뒤로가기
+        </Button>
       </Box>
       <Box flex={1} display={'flex'} flexDirection={'column'}>
         <Text fontSize="large" mb={3}>
           선택된 유저
         </Text>
-        <List overflow={'auto'} flex={1} className="select-none">
+        <List
+          overflow={'auto'}
+          flex={1}
+          className="select-none"
+          onMouseUp={(e) => {
+            setIsDragging(false);
+          }}
+        >
           {selectedUser?.map((user) => (
             <ListItem
               width={'100%'}
               key={user.id}
-              cursor={'pointer'}
+              cursor={isDragging ? 'cell' : 'pointer'}
+              _hover={{ bgColor: 'gray.200' }}
               onClick={() => handleTogleUser(user)}
+              onMouseDown={(e) => {
+                setIsDragging(true);
+              }}
+              onMouseOver={(e) => {
+                if (isDragging) {
+                  handleTogleUser(user);
+                }
+              }}
             >
               <Text draggable={false}>
                 {user.name} / {user.email}

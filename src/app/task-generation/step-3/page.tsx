@@ -1,5 +1,5 @@
 import StepThreeForm from '@/components/Task/StepThreeForm';
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Button, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 
 const StepThree = async () => {
@@ -22,9 +22,14 @@ const StepThree = async () => {
           {data.errorMsg}
           <br />
           유저 목록을 불러오는데 실패했습니다. <br />
-          <Link as="/task-generation/step-2" href="/task-generation/step-2">
-            Step-2 부터 다시 시작하기
-          </Link>
+          <Button
+            type="button"
+            onClick={() => {
+              window.location.reload();
+            }}
+          >
+            Refresh
+          </Button>
         </Text>
       ) : (
         <StepThreeForm users={data.users} />

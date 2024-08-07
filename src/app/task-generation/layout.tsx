@@ -1,5 +1,4 @@
-import { Box, SkeletonText, Stack, StackDivider, Text } from '@chakra-ui/react';
-import { Suspense } from 'react';
+import { Box, Stack, Text } from '@chakra-ui/react';
 
 export default function TaskGenPageLayout({
   children,
@@ -17,20 +16,7 @@ export default function TaskGenPageLayout({
         p={4}
         justifyContent={'flex-start'}
       >
-        <Box overflow={'auto'}>
-          <Suspense
-            fallback={
-              <Stack minW={'800px'}>
-                <SkeletonText />
-                <SkeletonText />
-                <SkeletonText />
-                <SkeletonText />
-              </Stack>
-            }
-          >
-            {children}
-          </Suspense>
-        </Box>
+        <Box overflow={'auto'}>{children}</Box>
       </Box>
     </Stack>
   );

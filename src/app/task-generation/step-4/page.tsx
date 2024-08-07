@@ -9,18 +9,22 @@ import {
   Box,
   List,
   ListItem,
-  Table,
   TableContainer,
+  TableCaption,
+  Table,
   Tbody,
   Td,
   Text,
   Th,
   Thead,
   Tr,
+  Button,
 } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 
 const StepFour = () => {
+  const router = useRouter();
   const taskState = useTaskStore((state) => state.taskConfig);
   const step3Config = useTaskStore(
     (state) => state.taskConfig.steps[TaskStep.step3] as Step3Config
@@ -44,6 +48,7 @@ const StepFour = () => {
         Step 4
       </Text>
       <Text
+        mb={4}
         fontSize={'large'}
         bgColor={'CaptionText'}
         color={'white'}
@@ -51,19 +56,20 @@ const StepFour = () => {
       >
         작업 분배 결과 확인
       </Text>
-      <Box overflow={'scroll'}>
+      <Box overflow={'scroll'} flex={1}>
         <TableContainer>
-          <Table colorScheme="blackAlpha">
+          <Table size={'sm'} variant={'simple'}>
+            <TableCaption />
             <Thead>
               <Tr>
-                <th>작업자 ID</th>
-                <th>작업자 이름</th>
-                <th>작업 번호</th>
-                <th>할당받은 작업 이미지 id</th>
+                <Th>작업자 ID</Th>
+                <Th>작업자 이름</Th>
+                <Th>작업 번호</Th>
+                <Th>할당받은 작업 이미지 id 목록</Th>
+                <Th>할당받은 작업 이미지 개수</Th>
               </Tr>
             </Thead>
-
-            <Tbody overflow={'auto'}>
+            <Tbody>
               {step3Config?.workers?.map((worker) => {
                 // 작업자 ID
                 const header1 = `${worker.id}`;
@@ -80,24 +86,27 @@ const StepFour = () => {
                           <Th
                             verticalAlign={'top'}
                             rowSpan={worker.taskList?.length}
+                            borderRight={'solid 0.5px #c4c4c4'}
                           >
                             {header1}
                           </Th>
                           <Th
                             verticalAlign={'top'}
                             rowSpan={worker.taskList?.length}
+                            borderRight={'solid 0.5px #c4c4c4'}
                           >
                             {header2}
                           </Th>
-                          <Td verticalAlign={'top'}>{task}</Td>
-                          <Td>
+                          <Td
+                            verticalAlign={'top'}
+                            borderRight={'solid 0.5px #c4c4c4'}
+                          >
+                            {task}
+                          </Td>
+                          <Td borderRight={'solid 0.5px #c4c4c4'}>
                             <List height={20} overflow={'auto'}>
                               {taskImageDistribution[task].map(
                                 (imgId: string, index) => {
-                                  // const image = imageDatas.find(
-                                  //   (image) => image.id === imgId
-                                  // );
-                                  // objectCount += image?.objectCount || 0;
                                   return (
                                     <ListItem key={`img-${index}`}>
                                       {imgId}
@@ -107,7 +116,7 @@ const StepFour = () => {
                               )}
                             </List>
                           </Td>
-                          {/* <td>{objectCount}</td> */}
+                          <Td>{taskImageDistribution[task].length}</Td>
                         </Tr>
                       </>
                     );
@@ -115,8 +124,16 @@ const StepFour = () => {
                     return (
                       <>
                         <Tr>
-                          <Td verticalAlign={'top'}>{task}</Td>
-                          <Td verticalAlign={'top'}>
+                          <Td
+                            verticalAlign={'top'}
+                            borderRight={'solid 0.5px #c4c4c4'}
+                          >
+                            {task}
+                          </Td>
+                          <Td
+                            verticalAlign={'top'}
+                            borderRight={'solid 0.5px #c4c4c4'}
+                          >
                             <List height={20} overflow={'auto'}>
                               {taskImageDistribution[task].map(
                                 (imgId: string, index) => {
@@ -129,6 +146,7 @@ const StepFour = () => {
                               )}
                             </List>
                           </Td>
+                          <Td>{taskImageDistribution[task].length}</Td>
                         </Tr>
                       </>
                     );
@@ -138,6 +156,15 @@ const StepFour = () => {
             </Tbody>
           </Table>
         </TableContainer>
+      </Box>
+      <Box display={'flex'} flexDirection={'row'}>
+        <Button
+          onClick={() => {
+            router.push('/task-generation/step-3');
+          }}
+        >
+          뒤로가기
+        </Button>
       </Box>
     </Box>
   );

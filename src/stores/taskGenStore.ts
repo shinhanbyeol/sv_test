@@ -41,6 +41,7 @@ export type Step3Config = {
     {
       id: string;
       name: string;
+      email: string;
       taskList?: number[];
     }
   ];
