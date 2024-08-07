@@ -1,5 +1,5 @@
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { TaskStep, useTaskStore } from '@/stores/taskGenStore';
 import { Button, Input, Stack, Text, Textarea } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
