@@ -1,6 +1,18 @@
 import StepThreeForm from '@/components/Task/StepThreeForm';
-import { Box, Button, Text } from '@chakra-ui/react';
-import Link from 'next/link';
+import { Box, Link, Text } from '@chakra-ui/react';
+
+async function getData() {
+  return fetch('http://localhost:3000/api/users', {
+    cache: 'no-cache',
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      return { users: data, error: false, errorMsg: '' };
+    })
+    .catch((error) => {
+      return { users: [], error: true, errorMsg: error.message };
+    });
+}
 
 const StepThree = async () => {
   const data = await getData();
@@ -22,14 +34,7 @@ const StepThree = async () => {
           {data.errorMsg}
           <br />
           유저 목록을 불러오는데 실패했습니다. <br />
-          <Button
-            type="button"
-            onClick={() => {
-              window.location.reload();
-            }}
-          >
-            Refresh
-          </Button>
+          <Link href="/task-generation/step-3">유저 목록 다시 불러오기</Link>
         </Text>
       ) : (
         <StepThreeForm users={data.users} />
@@ -39,16 +44,3 @@ const StepThree = async () => {
 };
 
 export default StepThree;
-
-export async function getData() {
-  return fetch('http://localhost:3000/api/users', {
-    cache: 'no-cache',
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      return { users: data, error: false, errorMsg: '' };
-    })
-    .catch((error) => {
-      return { users: [], error: true, errorMsg: error.message };
-    });
-}

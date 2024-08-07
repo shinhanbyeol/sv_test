@@ -1,6 +1,19 @@
 import StepOneForm from '@/components/Task/StepOneForm';
 import { Box, Link, Text } from '@chakra-ui/react';
 
+async function getData() {
+  return fetch('http://localhost:3000/api/images', {
+    cache: 'no-cache',
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      return { images: data, error: false, errorMsg: '' };
+    })
+    .catch((error) => {
+      return { images: [], error: true, errorMsg: error.message };
+    });
+}
+
 const TaskGenerationPage = async () => {
   const data = await getData();
 
@@ -25,16 +38,3 @@ const TaskGenerationPage = async () => {
 };
 
 export default TaskGenerationPage;
-
-export async function getData() {
-  return fetch('http://localhost:3000/api/images', {
-    cache: 'no-cache',
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      return { images: data, error: false, errorMsg: '' };
-    })
-    .catch((error) => {
-      return { images: [], error: true, errorMsg: error.message };
-    });
-}
