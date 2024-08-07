@@ -16,13 +16,16 @@ const StepTwoFrom = () => {
   const router = useRouter();
 
   const allObjectCount = useMemo(() => {
-    const allCount = imagesData.reduce((acc, cur) => acc + cur.objectCount, 0);
-    return allCount;
-  }, [imagesData]);
+    return imagesData
+      .slice(0, stepOneConfig.goalWorkload)
+      .reduce((acc, cur) => {
+        return acc + cur.objectCount;
+      }, 0);
+  }, [imagesData, stepOneConfig.goalWorkload]);
 
   const avgObjectCount = useMemo(
-    () => allObjectCount / imagesData.length,
-    [allObjectCount, imagesData]
+    () => allObjectCount / stepOneConfig.goalWorkload,
+    [allObjectCount, stepOneConfig]
   );
 
   /**
@@ -75,7 +78,7 @@ const StepTwoFrom = () => {
 
   return (
     <>
-      <Stack m={4} w={'100%'}>
+      <Stack m={4}>
         <Text
           fontSize={20}
           bgColor={'CaptionText'}
@@ -84,9 +87,9 @@ const StepTwoFrom = () => {
         >
           할당된 이미지: {stepOneConfig.goalWorkload}개를 분배하기위한 작업
           설정을 하십시오,
-        </Text>
-        <Text fontSize={16} textAlign={'center'}>
-          이미지당 평균 object 개수는: {Math.ceil(avgObjectCount)} 입니다.
+          <br />
+          전체 object 수: {allObjectCount} / 이미지 별 평균 object 개수:{' '}
+          {Math.ceil(avgObjectCount)}
         </Text>
         <Formik
           initialValues={{
@@ -109,7 +112,7 @@ const StepTwoFrom = () => {
         >
           {(props) => (
             <Form>
-              <Text fontSize={16} textAlign={'center'}>
+              <Text fontSize={16} fontWeight={'bold'} textAlign={'center'}>
                 작업 생성 모드:{' '}
                 {props.values.mode === 'object'
                   ? 'Object base mode'
