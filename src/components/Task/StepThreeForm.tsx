@@ -5,12 +5,14 @@ import { MockUser } from '@/app/api/users/route';
 import { Stack, Box, Text, ListItem, List, Button } from '@chakra-ui/react';
 import { Step2Config, TaskStep, useTaskStore } from '@/stores/taskGenStore';
 import _ from 'lodash';
+import { useRouter } from 'next/navigation';
 
 interface StepThreeFormProps {
   users: MockUser[];
 }
 
 const StepThreeForm = ({ users }: StepThreeFormProps) => {
+  const router = useRouter();
   const [usersData] = useState<MockUser[]>(users);
   const [selectedUser, setSelectedUser] = useState<MockUser[] | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -40,7 +42,10 @@ const StepThreeForm = ({ users }: StepThreeFormProps) => {
   );
 
   const handleToAssignTask = useCallback(() => {
-    if (!selectedUser) return;
+    if (!selectedUser || selectedUser.length === 0) {
+      alert('선택된 유저가 없습니다.');
+      return;
+    }
 
     const workers: {
       id: string;
@@ -56,9 +61,14 @@ const StepThreeForm = ({ users }: StepThreeFormProps) => {
       step2Config.taskDistribution
     );
 
+    if (!_taskDistribution) {
+      alert('작업 분배가 되지 않았습니다. 작업 분배를 먼저 진행해주세요.');
+      router.push('/task-generation/step-2');
+    }
+
     let idx = 0;
     let maxIdx = workers.length - 1;
-    _taskDistribution.forEach((taskList, index) => {
+    _taskDistribution?.forEach((taskList, index) => {
       if (idx > maxIdx) idx = 0;
       workers[idx].taskList?.push(index);
       idx++;
@@ -67,7 +77,8 @@ const StepThreeForm = ({ users }: StepThreeFormProps) => {
     setStepData(TaskStep.step3, {
       workers,
     });
-  }, [step2Config, selectedUser]);
+    router.push('/task-generation/step-4');
+  }, [selectedUser, step2Config.taskDistribution, setStepData, router]);
 
   return (
     <Stack direction={'row'} flex={1} overflow={'auto'}>

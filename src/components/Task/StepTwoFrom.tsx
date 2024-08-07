@@ -86,8 +86,7 @@ const StepTwoFrom = () => {
           설정을 하십시오,
         </Text>
         <Text fontSize={16} textAlign={'center'}>
-          전체 object 개수: {allObjectCount} /이미지당 평균 object 개수:{' '}
-          {Math.ceil(avgObjectCount)} / 이미지 개수: {imagesData.length}
+          이미지당 평균 object 개수는: {Math.ceil(avgObjectCount)} 입니다.
         </Text>
         <Formik
           initialValues={{
